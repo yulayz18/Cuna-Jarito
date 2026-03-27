@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <form>
+
+<section>
+  <fieldset>
+    <legend>Shipping Address</legend>
+
+    <label>Name:
+      <input type="text" required>
+    </label><br>
+
+    <label>Address:
+      <input type="text" required>
+    </label><br>
+
+    <label>ZIP Code:
+      <input type="text" required>
+    </label>
+  </fieldset>
+</section>
+
+<section>
+  <h3>Payment Method</h3>
+  <label>
+    <input type="radio" name="payment"> COD
+  </label><br>
+  <label>
+    <input type="radio" name="payment"> GCash
+  </label><br>
+  <label>
+    <input type="radio" name="payment"> Credit Card
+  </label><br>
+
+  <label>
+    <input type="radio" name="payment"> PayPal
+  </label>
+</section>
+
+<button>Place Order</button>
+
+</form>
+
+<aside>
+  <h3>Order Summary</h3>
+  <p>Total: ₱500</p>
+</aside>
+
+<script src="script.js"></script>
+</body>
+</html>
