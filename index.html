@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Barangay Youth Election System - Dashboard</title>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 20;
+        }
+
+        .menu-btn {
+            background: #e67e22;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-right: 20px;
+        }
+
+        .menu-btn:hover {
+            background: #d35400;
+            transform: scale(1.02);
+        }
+
+        .title h1 {
+            font-size: 1.4rem;
+        }
+        .title p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Sidebar Menu (Popup style) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background: #fff;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+            transition: 0.3s ease-in-out;
+            z-index: 1000;
+            overflow-y: auto;
+            padding-top: 70px;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            background: #e67e22;
+            color: white;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .purok-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .purok-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .purok-item i {
+            width: 25px;
+            color: #e67e22;
+        }
+
+        .purok-item:hover {
+            background: #fef5e8;
+            border-left: 4px solid #e67e22;
+        }
+
+        /* Overlay when menu is open */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Main Dashboard Content */
+        .dashboard-container {
+            padding: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-left: 6px solid #e67e22;
+        }
+
+        .stats-card h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+        }
+
+        .stats-card p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .youth-count {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #e67e22;
+            margin-top: 10px;
+        }
+
+        .map-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .map-card h3 {
+            margin-bottom: 12px;
+            color: #2c3e50;
+        }
+
+        #map {
+            height: 450px;
+            border-radius: 16px;
+            z-index: 1;
+        }
+
+        .info-text {
+            margin-top: 20px;
+            background: #ecf0f1;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                width: 260px;
+            }
+            .dashboard-container {
+                padding: 15px;
+            }
+            .stats-card h2 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <button class="menu-btn" id="menuToggleBtn"><i class="fas fa-bars"></i></button>
+    <div class="title">
+        <h1>🗳️ Barangay Youth Election System</h1>
+        <p>SK Dashboard | Monitoring Youth per Purok</p>
+    </div>
+</div>
+
+<!-- Sidebar Menu (Popup) -->
+<div class="sidebar" id="sidebarMenu">
+    <div class="sidebar-header">
+        <span><i class="fas fa-layer-group"></i> Zones / Purok</span>
+        <button class="close-menu" id="closeMenuBtn">&times;</button>
+    </div>
+    <ul class="purok-list" id="purokList">
+        <!-- Dynamic purok list will be injected via JS, but we can also put static for clarity -->
+    </ul>
+    <div style="padding: 20px; font-size: 0.8rem; color: #aaa; border-top: 1px solid #eee; margin-top: 20px;">
+        <i class="fas fa-map-marker-alt"></i> Click any purok to see youth count
+    </div>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<!-- Main Dashboard -->
+<div class="dashboard-container">
+    <div class="stats-card" id="infoCard">
+        <h2><i class="fas fa-users"></i> Youth Population Overview</h2>
+        <p>Currently viewing: <strong id="selectedPurokName">All Puroks</strong></p>
+        <div class="youth-count" id="youthCountDisplay">0</div>
+        <p>Registered youth (ages 15-30) for SK Election</p>
+    </div>
+
+    <div class="map-card">
+        <h3><i class="fas fa-map"></i> Barangay Location Map</h3>
+        <div id="map"></div>
+        <div class="info-text">
+            <i class="fas fa-info-circle"></i> This map shows the exact location of the target Barangay: <strong>Barangay San Miguel</strong>, Iriga City, Camarines Sur, Philippines.
+        </div>
+    </div>
+</div>
+
+<footer>
+    <i class="fas fa-chart-line"></i> Barangay Youth Election System | Data for demo purposes
+</footer>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // ------------------------------
+    // SAMPLE DATA: Youth per Purok
+    // ------------------------------
+    const purokData = [
+        { id: 1, name: "Purok 1 - San Lorenzo", youthCount: 45, zone: "Zone 1" },
+        { id: 2, name: "Purok 2 - Santo Niño", youthCount: 52, zone: "Zone 1" },
+        { id: 3, name: "Purok 3 - Divine Mercy", youthCount: 38, zone: "Zone 2" },
+        { id: 4, name: "Purok 4 - Holy Cross", youthCount: 61, zone: "Zone 2" },
+        { id: 5, name: "Purok 5 - San Isidro", youthCount: 29, zone: "Zone 3" },
+        { id: 6, name: "Purok 6 - Resurrection", youthCount: 47, zone: "Zone 3" },
+        { id: 7, name: "Purok 7 - Our Lady of Peace", youthCount: 33, zone: "Zone 4" },
+        { id: 8, name: "Purok 8 - San Vicente", youthCount: 54, zone: "Zone 4" }
+    ];
+
+    // Total youth for all puroks
+    const totalYouth = purokData.reduce((sum, p) => sum + p.youthCount, 0);
+
+    // Reference DOM elements
+    const menuBtn = document.getElementById('menuToggleBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const sidebar = document.getElementById('sidebarMenu');
+    const overlay = document.getElementById('overlay');
+    const purokListEl = document.getElementById('purokList');
+    const selectedPurokNameSpan = document.getElementById('selectedPurokName');
+    const youthCountDisplay = document.getElementById('youthCountDisplay');
+
+    // ------------------------------
+    // Function to populate the purok menu (sidebar)
+    // ------------------------------
+    function populatePurokMenu() {
+        purokListEl.innerHTML = '';
+        // Optionally add "All Puroks" at top
+        const allItem = document.createElement('li');
+        allItem.className = 'purok-item';
+        allItem.innerHTML = `<i class="fas fa-globe"></i> All Puroks / Entire Barangay`;
+        allItem.addEventListener('click', () => {
+            showYouthCountForAll();
+            closeSidebar();
+        });
+        purokListEl.appendChild(allItem);
+
+        // Add each purok
+        purokData.forEach(purok => {
+            const li = document.createElement('li');
+            li.className = 'purok-item';
+            li.innerHTML = `<i class="fas fa-map-pin"></i> ${purok.name} <span style="margin-left: auto; font-size:0.8rem; background:#f0f0f0; padding:2px 8px; border-radius:20px;">${purok.youthCount} youth</span>`;
+            li.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showYouthCountForPurok(purok);
+                closeSidebar();
+            });
+            purokListEl.appendChild(li);
+        });
+    }
+
+    // Show youth count for a specific purok
+    function showYouthCountForPurok(purok) {
+        selectedPurokNameSpan.innerText = purok.name;
+        youthCountDisplay.innerText = purok.youthCount;
+        // Optional: add a small animation or highlight effect
+    }
+
+    // Show total youth for entire barangay
+    function showYouthCountForAll() {
+        selectedPurokNameSpan.innerText = "All Puroks (Entire Barangay)";
+        youthCountDisplay.innerText = totalYouth;
+    }
+
+    // Sidebar control functions
+    function openSidebar() {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    // ------------------------------
+    // MAP CONFIGURATION
+    // Target Barangay: Barangay San Miguel, Iriga City, Camarines Sur, Philippines
+    // Coordinates: approx 13.4322° N, 123.4125° E (Iriga City area)
+    // For demonstration, we set a precise location that represents a typical barangay.
+    // ------------------------------
+    const barangayLat = 13.4322;
+    const barangayLng = 123.4125;
+    const barangayName = "Barangay San Miguel, Iriga City";
+
+    // Initialize the map
+    const map = L.map('map').setView([barangayLat, barangayLng], 15);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Add a marker for the barangay
+    const barangayMarker = L.marker([barangayLat, barangayLng]).addTo(map);
+    barangayMarker.bindPopup(`<b>${barangayName}</b><br>Target Barangay for SK Elections`).openPopup();
+
+    // Optional: Add a circle to highlight the area
+    L.circle([barangayLat, barangayLng], {
+        color: '#e67e22',
+        fillColor: '#f39c12',
+        fillOpacity: 0.2,
+        radius: 300
+    }).addTo(map);
+
+    // ------------------------------
+    // Initialize default view (All Puroks)
+    // ------------------------------
+    function initDashboard() {
+        populatePurokMenu();
+        showYouthCountForAll(); // default show total youth
+    }
+
+    // Event listeners for sidebar toggle
+    menuBtn.addEventListener('click', openSidebar);
+    closeMenuBtn.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    // Keyboard accessibility: press ESC to close menu
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+            closeSidebar();
+        }
+    });
+
+    // Start everything
+    initDashboard();
+</script>
+
+</body>
+</html>
