@@ -9,15 +9,52 @@
 <body>
   <header class="account-header">
   <h2>Welcome,E-Commerce</h2>
-</header>
+<a href="landing.html" class="logo">UrbanMart</a>
 
 <nav class="account-nav">
-  <a href="#">Order History</a>
-  <a href="#">Profile Settings</a>
-  <a href="#">Wishlist</a>
-</nav>
+  <ul>
+    <li><a href="landing.html">Home</a></li>
+    <li><a href="products.html">Shop</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="account.html">My Account</a></li>
+  </ul>
+  </nav>
+</header>
 
-<section class="order-history">
+<main>
+  <header>
+    <h1>Welcome back, Yul Cedric</h1>
+      <nav>
+        <ul>
+          <li><a href="#">Order History</a></li>
+          <li><a href="#">Profile Settings</a></li>
+          <li><a href="#">Wishlist</a></li>
+          <li><a href="#">Saved Addresses</a></li>
+        </ul>
+      </nav>
+  </header>
+
+  <section>
+    <h2>Profile Information</h2>
+
+    <form>
+      <label for="name">Full Name:</label>
+      <input type="text" id="name" name="name" value="Yul Cedric" required>
+
+      <label for="email">Email Address:</label>
+      <input type="email" id="email" name="email" value="yulcedric@gmail.com" required>
+
+      <label for="current-pwd">Current Password:</label>
+      <input type="password" id="current-pwd" name="current-password" required>
+
+      <label for="new-pwd">New Password:</label>
+      <input type="submit" id="new-pwd" name="new-password" required>
+
+      <button type="submit">Update Account</button>
+    </form>
+  </section>
+
+  <section class="order-history">
   <h3>Previous Orders</h3>
 
   <details>
@@ -51,8 +88,7 @@
     <dd>Status: Shipped</dd>
   </dl>
 </section>
-
-</section>
+</main>
 
 <script src="script.js"></script>
 

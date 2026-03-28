@@ -319,18 +319,16 @@ nav a:hover {
   border-radius: 6px;
   text-align: center;
 }
-
-.cart-summary {
-  text-align: right;
-  padding: 1rem;
-  max-width: 800px;
-  margin: 0 auto;
+.cart-container:empty + .empty-cart-message {
+  display: block;
 }
 
-.cart-summary h2 {
-  margin-bottom: 1rem;
+.empty-cart-message {
+  display: none;
+  text-align: center;
+  padding: 2rem;
+  color: #888;
 }
-
 .checkout-btn {
   display: inline-block;
   background: var(--primary-color);
